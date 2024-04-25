@@ -37,7 +37,7 @@ gray_image = rgb2gray(im_dil);
 bw_image = imbinarize(gray_image, bw_threshold);
 
 %% Get disk's centroid through Hough Transformation
-c_range = [200, 1000];
+c_range = [40, 400];
 [centroid, radii] = imfindcircles(bw_image, c_range);
 
 %% Show drone's centroid
