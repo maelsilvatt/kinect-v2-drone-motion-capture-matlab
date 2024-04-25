@@ -1,2 +1,1 @@
-# kinect-v2-drone-motion-capture
-A MATLAB implementation of a motion capture system on Kinect V2 to detect small drones
+Kinect V2 Drone Motion Capture: A MATLAB implementation for detecting small drones, developed as part of a scientific project during my research initiation.
