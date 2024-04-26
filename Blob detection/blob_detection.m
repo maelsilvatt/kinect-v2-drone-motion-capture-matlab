@@ -23,6 +23,11 @@ mask = (hsv_image(:,:,1) >= (h_color - color_threshold)) & ...
 %% Apply mask to drone image
 color_mask = bsxfun(@times, image, cast(mask, 'like', image));
 
+%% Binarize mask
+bw_threshold = 0.1; % binarization threshold
+gray_image = rgb2gray(im_dil);
+bw_image = imbinarize(gray_image, bw_threshold);
+
 %% Apply erosion
 se1 = strel('disk', 10); % erosion format and radius
 im_erod = imerode(color_mask, se1);
@@ -30,17 +35,10 @@ im_erod = imerode(color_mask, se1);
 %% Apply dilation
 se2 = strel('disk', 10); % dilation format and radius
 im_dil = imdilate(im_erod, se2);
-
-%% Binarize mask
-bw_threshold = 0.1; % binarization threshold
-gray_image = rgb2gray(im_dil);
-bw_image = imbinarize(gray_image, bw_threshold);
-
 %% Get disk's centroid through Hough Transformation
 c_range = [40, 400];
 [centroid, radii] = imfindcircles(bw_image, c_range);
 
 %% Show drone's centroid
 imshow(image);
-viscircles(centroid, radii);
-
+viscircles(centroid, radii)
