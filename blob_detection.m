@@ -18,6 +18,7 @@ mask = (hsv_image(:,:,1) >= (h_color - color_threshold)) & ...
 %% Step 3: Apply the color mask on the image
 color_mask = bsxfun(@times, image, cast(mask, 'like', image));
 
+
 %% Step 4: Binarize the filtered image
 bw_threshold = 0.1;  % binarization threshold
 gray_image = rgb2gray(color_mask);
