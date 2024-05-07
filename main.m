@@ -23,11 +23,15 @@ delete('output\output_video.mp4');
 videoOut = VideoWriter('output\output_video.mp4', 'MPEG-4');
 open(videoOut);
 
-% Set a frame counter
-frame_count = 0;
-
 % Sets Hough Transform range
 c_range = [1, 700];
+
+% Initialize frame variables
+frame_count = 0;
+fps = 0;
+start_time = tic;
+last_frame_time = 0;
+ms_between_frames = 0;
 
 while hasFrame(vid)
     % Increment frame counter
@@ -52,12 +56,12 @@ while hasFrame(vid)
         x = filtered_center(1) - frame_x/2;
         y = frame_y/2 - filtered_center(2);
 
-        centers_info = sprintf('centers: (%.2f, %.2f)', x, y);
+        centers_info = sprintf('center: (%.2f, %.2f)', x, y);
 
         % Inserts a circle where the blob was detected
         frame = insertShape(frame, 'filled-circle', [filtered_center, max_radius], 'Color', 'red');
     else
-        centers_info = sprintf('centers: N/A');
+        centers_info = sprintf('center: N/A');
     end
 
     % Inserts a text showing detected blob centers
@@ -65,6 +69,23 @@ while hasFrame(vid)
 
     % Inserts current frame counter on frame
     frame = insertText(frame, [1, 1], frame_count, FontSize=24);
+    
+    % Computes FPS and ms between each 10 frames
+    if mod(frame_count, 10) == 0
+        elapsed_time = toc;
+
+        fps = frame_count / elapsed_time;
+        ms_between_frames = (elapsed_time - last_frame_time) * 1000; % Elapsed time between frames in milliseconds
+        last_frame_time = elapsed_time;
+
+        tic;
+    end
+
+    % Inserts FPS on frame
+    frame = insertText(frame, [size(frame, 2) - 100, 20], sprintf('FPS: %.2f', fps), 'FontSize', 12, 'TextColor', 'white', 'BoxColor', 'black', 'BoxOpacity', 0.5);
+
+    % Inserts ms between frames on frame
+    frame = insertText(frame, [size(frame, 2) - 100, 50], sprintf('ms: %.2f', ms_between_frames), 'FontSize', 12, 'TextColor', 'white', 'BoxColor', 'black', 'BoxOpacity', 0.5);
 
     % Write frame into output video
     writeVideo(videoOut, frame);
