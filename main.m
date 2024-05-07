@@ -38,23 +38,30 @@ while hasFrame(vid)
     % Get video frame
     frame = readFrame(vid);
     
-    % Obtains blobs centroid
-    [centroid, radii] = blob_detection(frame, c_range);
+    % Obtains masked image centers
+    [centers, radii] = blob_detection(frame, c_range);
 
     % Detects if the object is ocluded or not
-    if size(centroid) > 0
-        centroid_info = sprintf('Centroid: (%.2f, %.2f)', centroid(1), centroid(2));
+    if size(centers) > 0
+        % Filters the largest centroid ignoring noised detections
+        [max_radius, max_index] = max(radii);    % highest radii index
+        filtered_center = centers(max_index, :); % largest center index
+
+        % Sets origin to the frame center instead of up left
+        [frame_y, frame_x, ~] = size(frame);
+        x = filtered_center(1) - frame_x/2;
+        y = frame_y/2 - filtered_center(2);
+
+        centers_info = sprintf('centers: (%.2f, %.2f)', x, y);
+
+        % Inserts a circle where the blob was detected
+        frame = insertShape(frame, 'filled-circle', [filtered_center, max_radius], 'Color', 'red');
     else
-        centroid_info = sprintf('Centroid: N/A');
+        centers_info = sprintf('centers: N/A');
     end
 
-    % Inserts a circle where the blob was detected
-    [max_radius, max_index] = max(radii); % highest radii index
-    biggest_centroid = centroid(max_index, :); % highest radii coords
-    frame = insertShape(frame, 'filled-circle', [biggest_centroid, max_radius], 'Color', 'red');
-
-    % Inserts a text showing detected blob centroid
-    frame = insertText(frame, [1, 50], centroid_info, FontSize=36, FontColor="white", TextBoxColor="black");
+    % Inserts a text showing detected blob centers
+    frame = insertText(frame, [1, 50], centers_info, FontSize=36, FontColor="white", TextBoxColor="black");
 
     % Inserts current frame counter on frame
     frame = insertText(frame, [1, 1], frame_count, FontSize=24);
